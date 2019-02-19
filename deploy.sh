@@ -6,9 +6,6 @@ if [ $UID -ne 0 ]; then
     exit 1
 fi
 
-mkdir cortex-install
-cd cortex-install
-
 HAS_NVIDIA_DRIVER=$(which nvidia-smi)
 if [ -z $HAS_NVIDIA_DRIVER ]; then
 	echo NVIDIA driver not found, stop
@@ -76,14 +73,16 @@ fi
 rm -rf $DPLOY_PATH
 mkdir -p $DPLOY_PATH
 mkdir -p $DPLOY_PATH/logs
-wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-package.tar.gz
-DOWNLOAD_STATUS=$(ls | grep cortex-package.tar.gz)
+wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/master -O cortex-package.zip
+DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
 if [ -z $DOWNLOAD_STATUS ]; then
     echo download failed
     exit 1
 fi
-tar zxvf cortex-package.tar.gz
-mv -r ./cortex-package/script/* $DPLOY_PATH/
+
+unzip cortex-package.zip
+mv cortex-deploy-master cortex-package
+mv ./cortex-package/cortex-config/* $DPLOY_PATH/
 mv cortex $DPLOY_PATH/
 #mv cuda_miner $DPLOY_PATH/
 chmod +x ./cortex-package/service/cortex-monitor.sh
