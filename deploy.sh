@@ -6,6 +6,9 @@ if [ $UID -ne 0 ]; then
     exit 1
 fi
 
+mkdir cortex-install
+cd cortex-install
+
 HAS_NVIDIA_DRIVER=$(which nvidia-smi)
 if [ -z $HAS_NVIDIA_DRIVER ]; then
 	echo NVIDIA driver not found, stop
