@@ -35,41 +35,34 @@ fi
 
 if [ -n $CUDA10 ]; then
     echo CUDA10.0 detected
-    if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda10.0 | grep 'Not Found')`]; then
+    wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda10.0
+    DOWNLOAD_STATUS=$(ls | grep cortex-cuda10.0)
+    if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
     mv cortex-cuda10.0 cortex
-#    if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/miner-cuda10.0 | grep 'Not Found')`]; then
-#        echo download failed
-#        exit 1
-#    fi
+#    wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/miner-cuda10.0
 #    mv miner-cuda10.0 cuda_miner
 else
     if [ -n $CUDA92 ]; then
         echo CUDA9.2 detected
-        if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.2 | grep 'Not Found')`]; then
+        wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.2
+        DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.2)
+        if [ -z $DOWNLOAD_STATUS ]; then
             echo download failed
             exit 1
         fi
         mv cortex-cuda9.2 cortex
-#        if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/miner-cuda9.2 | grep 'Not Found')`]; then
-#            echo download failed
-#            exit 1
-#        fi
-#        mv miner-cuda9.2 cuda_miner
     else
         echo CUDA9.0 detected
-        if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.0 | grep 'Not Found')`]; then
+        wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.0
+        DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.0)
+        if [ -z $DOWNLOAD_STATUS ]; then
             echo download failed
             exit 1
         fi
         mv cortex-cuda9.0 cortex
-#        if [ -z `$(wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/miner-cuda9.0 | grep 'Not Found')`]; then
-#            echo download failed
-#            exit 1
-#        fi
-#        mv miner-cuda9.0 cuda_miner
     fi
 fi
 
@@ -96,5 +89,8 @@ mv ./cortex-package/supervisor-config/cortexnode.conf /etc/supervisor/conf.d/
 supervisorctl reload
 sleep 5
 service cortex-monitor.sh start
+
+rm cortex-package.tar.gz
+rm -r ./cortex-package
 
 echo deploy finish

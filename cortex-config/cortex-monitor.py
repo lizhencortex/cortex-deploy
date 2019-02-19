@@ -33,6 +33,11 @@ def refresh():
         )
         log, error = process.communicate()
         log = [x for x in log.rstrip().split("\n")]
+        process = subprocess.Popen(
+            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''',
+            stdout=subprocess.PIPE, shell=True
+        )
+        blocknum = process.communicate()
     except BaseException:
         pass
 
@@ -58,6 +63,7 @@ def refresh():
             'cpu_overview': cpu_overview,
             'cpu_detail': cpu_detail,
             'memory_overview': memory_overview,
+            'blocknum': blocknum,
         }
     except BaseException:
         pass
@@ -65,7 +71,7 @@ def refresh():
     data = { 'gpu': gpuinfo, 'mac': macinfo, 'log': log, 'info': info }
 
     try:
-        req = urllib2.Request('http://monitor.cortexlabs.ai/nodelist/send')
+        req = urllib2.Request('http://monitor.cortexlabs.ai/api/send')
         req.add_header('Content-Type', 'application/json')
         response = urllib2.urlopen(req, json.dumps(data))
     except BaseException:
