@@ -40,7 +40,7 @@ if [ -n $CUDA10 ]; then
     echo CUDA10.0 detected
     wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda10.0
     DOWNLOAD_STATUS=$(ls | grep cortex-cuda10.0)
-    if [ -z `$DOWNLOAD_STATUS` ]; then
+    if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
@@ -52,7 +52,7 @@ else
         echo CUDA9.2 detected
         wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.2
         DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.2)
-        if [ -z `$DOWNLOAD_STATUS` ]; then
+        if [ -z $DOWNLOAD_STATUS ]; then
             echo download failed
             exit 1
         fi
@@ -61,7 +61,7 @@ else
         echo CUDA9.0 detected
         wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.0
         DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.0)
-        if [ -z `$DOWNLOAD_STATUS` ]; then
+        if [ -z $DOWNLOAD_STATUS ]; then
             echo download failed
             exit 1
         fi
@@ -78,7 +78,7 @@ mkdir -p $DPLOY_PATH
 mkdir -p $DPLOY_PATH/logs
 wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-package.tar.gz
 DOWNLOAD_STATUS=$(ls | grep cortex-package.tar.gz)
-if [ -z `$DOWNLOAD_STATUS` ]; then
+if [ -z $DOWNLOAD_STATUS ]; then
     echo download failed
     exit 1
 fi
