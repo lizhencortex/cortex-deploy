@@ -65,6 +65,7 @@ else
         mv cortex-cuda9.0 cortex
     fi
 fi
+chmod +x cortex
 
 if [ -n "$1" ]; then
     DPLOY_PATH="$1" 
@@ -72,6 +73,7 @@ fi
 
 rm -rf $DPLOY_PATH
 mkdir -p $DPLOY_PATH
+chmod 777 $DPLOY_PATH -R
 mkdir -p $DPLOY_PATH/logs
 wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/master -O cortex-package.zip
 DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
@@ -94,7 +96,7 @@ supervisorctl reload
 sleep 5
 service cortex-monitor.sh start
 
-rm cortex-package.tar.gz
+rm cortex-package.zip
 rm -r ./cortex-package
 
 echo deploy finish
