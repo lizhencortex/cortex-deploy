@@ -30,4 +30,4 @@ fi
 
 export PATH=/usr/local/$CUDA_LIB/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/$CUDA_LIB/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-$CORTEX_BIN_PATH --port 37566 --rpc --rpccorsdomain '*' --rpcport 30089 --rpcapi web3,eth,ctx,miner,net,txpool --verbosity 4 --storage --cerebro --gcmode archive --mine --miner.coinbase $MINER_COINBASE --miner.threads 0 --miner.gasprice 1 --nodekey $CORTEX_KEY_PATH --miner.extradata cortex-nmg --rpcaddr 0.0.0.0 --bootnodes "$ENODE1,$ENODE2,$ENODE3,$ENODE4"
+$CORTEX_BIN_PATH --port 37566 --rpc --rpccorsdomain '*' --rpcport 30089 --rpcapi web3,eth,ctx,miner,net,txpool --verbosity 4 --storage --cerebro --gcmode archive --bootnodes "$ENODE1,$ENODE2,$ENODE3,$ENODE4"
