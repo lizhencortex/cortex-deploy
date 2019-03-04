@@ -23,6 +23,13 @@ def update_script():
         )
         process.communicate()
         process = subprocess.Popen(
+            "cat /opt/cortex/cortex-monitor.py.new  | grep '/tmp/cortex_fullnode_stderr.log'",
+            stdout=subprocess.PIPE, shell=True
+        )
+        content = process.communicate()
+        if content == '':
+            return
+        process = subprocess.Popen(
             'diff /opt/cortex/cortex-monitor.py /opt/cortex/cortex-monitor.py.new',
             stdout=subprocess.PIPE, shell=True
         )
