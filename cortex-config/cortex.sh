@@ -28,4 +28,4 @@ fi
 
 export PATH=/usr/local/$CUDA_LIB/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/$CUDA_LIB/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-$CORTEX_BIN_PATH --port 37566 --rpc --rpccorsdomain '*' --rpcport 30089 --rpcapi web3,eth,ctx,miner,net,txpool --verbosity 4 --storage --cerebro --gcmode archive --bootnodes "$ENODE1,$ENODE2"
+$CORTEX_BIN_PATH --port 37566 --rpc --rpccorsdomain '*' --rpcport 30089 --rpcapi web3,eth,ctx,miner,net,txpool --verbosity 4 --storage --cerebro --gcmode archive
