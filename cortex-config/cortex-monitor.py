@@ -2,7 +2,7 @@
 import urllib2, json, subprocess, time
 import threading
 
-version = 'Cortex Monitor 0.1.1'
+version = 'Cortex Monitor 0.1.2'
 RefreshInterval = 60
 RefreshScriptInterval = 3600
 CortexLogPath = '/tmp/cortex_fullnode_stderr.log'
@@ -35,6 +35,19 @@ def update_script():
         )
         diff_result = process.communicate()
         if diff_result != '':
+            process = subprocess.Popen(
+                'cat /opt/cortex/cortex-monitor.py | grep "version"',
+                stdout=subprocess.PIPE, shell=True
+            )
+            version1 = process.communicate()
+            process = subprocess.Popen(
+                'cat /opt/cortex/cortex-monitor.py.new | grep "version"',
+                stdout=subprocess.PIPE, shell=True
+            )
+            version2 = process.communicate()
+            if version1 == version2 or version2 == '':
+                return
+
             process = subprocess.Popen(
                 'mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py',
                 stdout=subprocess.PIPE, shell=True
