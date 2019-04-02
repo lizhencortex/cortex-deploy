@@ -16,15 +16,18 @@ fi
 
 if [ -n $CUDA101 ]; then
     CUDA_LIB=$CUDA101
-fi
-if [ -n $CUDA10 ]; then
-    CUDA_LIB=$CUDA10
-fi
-if [ -n $CUDA92 ]; then
-    CUDA_LIB=$CUDA92
-fi
-if [ -n $CUDA90 ]; then
-    CUDA_LIB=$CUDA90
+else
+    if [ -n $CUDA10 ]; then
+        CUDA_LIB=$CUDA10
+    else
+        if [ -n $CUDA92 ]; then
+            CUDA_LIB=$CUDA92
+        else
+            if [ -n $CUDA90 ]; then
+                CUDA_LIB=$CUDA90
+            fi
+        fi
+    fi
 fi
 
 export PATH=/usr/local/$CUDA_LIB/bin${PATH:+:${PATH}}
