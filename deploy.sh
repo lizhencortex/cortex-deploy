@@ -45,7 +45,7 @@ deploy() {
     if [ -n $CUDA101 ]; then
         echo CUDA10.1 detected
         if [ "$1" != "install" ]; then
-            wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda10.1 -O cortex-cuda10.1
+            wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/dev/cortex-core/bin/cortex-cuda10.1 -O cortex-cuda10.1
         fi
         DOWNLOAD_STATUS=$(ls | grep cortex-cuda10.1)
         if [ -z $DOWNLOAD_STATUS ]; then
@@ -57,7 +57,7 @@ deploy() {
         if [ -n $CUDA10 ]; then
             echo CUDA10.0 detected
             if [ "$1" != "install" ]; then
-                wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda10.0 -O cortex-cuda10.0
+                wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/dev/cortex-core/bin/cortex-cuda10.0 -O cortex-cuda10.0
             fi
             DOWNLOAD_STATUS=$(ls | grep cortex-cuda10.0)
             if [ -z $DOWNLOAD_STATUS ]; then
@@ -71,7 +71,7 @@ deploy() {
             if [ -n $CUDA92 ]; then
                 echo CUDA9.2 detected
                 if [ "$1" != "install" ]; then
-                    wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.2 -O cortex-cuda9.2
+                    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/dev/cortex-core/bin/cortex-cuda9.2 -O cortex-cuda9.2
                 fi
                 DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.2)
                 if [ -z $DOWNLOAD_STATUS ]; then
@@ -82,7 +82,7 @@ deploy() {
             else
                 echo CUDA9.0 detected
                 if [ "$1" != "install" ]; then
-                    wget https://raw.githubusercontent.com/lizhencortex/MonitorServer/master/static/cortex-cuda9.0 -O cortex-cuda9.0
+                    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/dev/cortex-core/bin/cortex-cuda9.0 -O cortex-cuda9.0
                 fi
                 DOWNLOAD_STATUS=$(ls | grep cortex-cuda9.0)
                 if [ -z $DOWNLOAD_STATUS ]; then
