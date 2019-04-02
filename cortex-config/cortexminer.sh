@@ -3,7 +3,8 @@
 CUDA90=$(ls /usr/local | grep cuda-9.0)
 CUDA92=$(ls /usr/local | grep cuda-9.2)
 CUDA10=$(ls /usr/local | grep cuda-10.0)
-HAS_CUDA=$CUDA90$CUDA92$CUDA10
+CUDA101=$(ls /usr/local | grep cuda-10.1)
+HAS_CUDA=$CUDA90$CUDA92$CUDA10$CUDA101
 MINER_COINBASE='0x92540521018f303c6ae527545a4215dfb0239a16'
 CORTEX_MINER_PATH='/opt/cortex/cuda_miner'
 MINERPOOL_ADDR='localhost:8009'
@@ -13,14 +14,17 @@ if [ -z $HAS_CUDA ]; then
 	exit 1
 fi
 
+if [ -n $CUDA101 ]; then
+    CUDA_LIB=$CUDA101
+fi
 if [ -n $CUDA10 ]; then
     CUDA_LIB=$CUDA10
-else
-    if [ -n $CUDA92 ]; then
-        CUDA_LIB=$CUDA92
-    else
-        CUDA_LIB=$CUDA90
-    fi
+fi
+if [ -n $CUDA92 ]; then
+    CUDA_LIB=$CUDA92
+fi
+if [ -n $CUDA90 ]; then
+    CUDA_LIB=$CUDA90
 fi
 
 export PATH=/usr/local/$CUDA_LIB/bin${PATH:+:${PATH}}
