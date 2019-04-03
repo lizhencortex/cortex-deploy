@@ -143,7 +143,7 @@ def upload_running_status():
             'cpu_overview': cpu_overview,
             'memory_overview': memory_overview,
             'blocknum': blocknum,
-            'enodeInfp': enodeInfo,
+            'enodeInfo': enodeInfo,
         }
     except BaseException:
         pass
