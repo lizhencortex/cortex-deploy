@@ -117,6 +117,15 @@ def upload_running_status():
         pass
 
     try:
+        process = subprocess.Popen(
+            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30094 ''',
+            stdout=subprocess.PIPE, shell=True
+        )
+        enodeInfo = process.communicate()
+    except BaseException:
+        pass
+
+    try:
         process = subprocess.Popen("ifconfig | grep 'inet'",
             stdout=subprocess.PIPE, shell=True
         )
@@ -134,6 +143,7 @@ def upload_running_status():
             'cpu_overview': cpu_overview,
             'memory_overview': memory_overview,
             'blocknum': blocknum,
+            'enodeInfp': enodeInfo,
         }
     except BaseException:
         pass
