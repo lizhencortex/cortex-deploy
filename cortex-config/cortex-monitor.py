@@ -118,7 +118,7 @@ def upload_running_status():
 
     try:
         process = subprocess.Popen(
-            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30094 ''',
+            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''',
             stdout=subprocess.PIPE, shell=True
         )
         enodeInfo = process.communicate()
