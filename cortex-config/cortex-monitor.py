@@ -151,7 +151,7 @@ def upload_running_status():
     data = { 'gpu': gpuinfo, 'mac': macinfo, 'log': log, 'info': info, 'version': version }
 
     try:
-        req = urllib2.Request('http://monitor.cortexlabs.ai/api/send')
+        req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
         req.add_header('Content-Type', 'application/json')
         req.add_header('Accept-Encoding', 'gzip')
         response = urllib2.urlopen(req, json.dumps(data))
