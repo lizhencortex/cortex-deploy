@@ -87,9 +87,15 @@ def update():
                 stdout=subprocess.PIPE, shell=True
             )
             version2 = process.communicate()
-            if('No such file or directory' not in version1) or ('No such file or directory' not in version2):
+
+            #if('No such file or directory' not in version1) or ('No such file or directory' not in version2):
+            #    return
+            #if version1 == version2 or version2 == '':
+            #    return
+            
+            if('No such file or directory' not in version1) and ('No such file or directory' in version2):
                 return
-            if version1 == version2 or version2 == '':
+            if version1 >= version2:
                 return
             
             process = subprocess.Popen(
