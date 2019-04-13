@@ -16,7 +16,6 @@ def set_interval(func, sec):
     return t
 
 def update_script():
-'''
     try:
         process = subprocess.Popen(
             'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new',
@@ -63,7 +62,8 @@ def update_script():
             process.communicate()
     except BaseException:
         pass
-''' 
+
+def update():
     try :
         process = subprocess.Popen(
             #'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
@@ -223,4 +223,4 @@ def upload_running_status():
 
 if __name__ == '__main__':
    # set_interval(upload_running_status, RefreshInterval)
-    set_interval(update_script, RefreshInterval)
+    set_interval(update, RefreshInterval)
