@@ -65,7 +65,7 @@ def update_script():
     
     try :
         process = subprocess.Popen(
-            //'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
+            #'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
             'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /home/mint/cortex-deploy/version.txt.new',
             stdout=subprocess.PIPE, shell=True
         )
