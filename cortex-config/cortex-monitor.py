@@ -221,5 +221,5 @@ def upload_running_status():
         pass
 
 if __name__ == '__main__':
-    set_interval(upload_running_status, RefreshInterval)
-    set_interval(update_script, RefreshScriptInterval)
+   # set_interval(upload_running_status, RefreshInterval)
+    set_interval(update_script, RefreshInterval)
