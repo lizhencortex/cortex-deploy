@@ -65,23 +65,24 @@ def update_script():
     
     try :
         process = subprocess.Popen(
-            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
+            //'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
+            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /home/mint/cortex-deploy/version.txt.new',
             stdout=subprocess.PIPE, shell=True
         )
         process.communicate()
         process = subprocess.Popen(
-            'diff /opt/cortex/version.txt /opt/cortex/version.txt.new',
+            'diff /home/mint/cortex-deploy/version.txt /home/mint/cortex-deploy/version.txt.new',
             stdout=subprocess.PIPE, shell=True
         )
         version_diff = process.communicate()
         if version_diff != '':
             process = subprocess.Popen(
-                'cat /opt/cortex/version.txt',
+                'cat /home/mint/cortex-deploy/version.txt',
                 stdout=subprocess.PIPE, shell=True
             )
             version1 = process.communicate()
             process = subprocess.Popen(
-                'cat /opt/cortex/version.txt.new',
+                'cat /home/mint/cortex-deploy/version.txt.new',
                 stdout=subprocess.PIPE, shell=True
             )
             version2 = process.communicate()
@@ -91,7 +92,7 @@ def update_script():
                 return
             
             process = subprocess.Popen(
-                'mv /opt/cortex/version.txt.new /opt/cortex/version.txt',
+                'mv /home/mint/cortex-deploy/version.txt.new /home/mint/cortex-deploy/version.txt',
                 stdout=subprocess.PIPE, shell=True
             )
             process.communicate()
