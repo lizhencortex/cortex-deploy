@@ -111,8 +111,8 @@ def update_script():
                 stdout=subprocess.PIPE, shell=True
             )
             process.communicate()
-        except BaseException:
-            pass
+    except BaseException:
+        pass
 
 
 def upload_running_status():
