@@ -65,8 +65,53 @@ def update_script():
     
     try :
         process = subprocess.Popen(
-            
+            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
+            stdout=subprocess.PIPE, shell=True
         )
+        process.communicate()
+        process = subprocess.Popen(
+            'diff /opt/cortex/version.txt /opt/cortex/version.txt.new',
+            stdout=subprocess.PIPE, shell=True
+        )
+        version_diff = process.communicate()
+        if version_diff != '':
+            process = subprocess.Popen(
+                'cat /opt/cortex/version.txt',
+                stdout=subprocess.PIPE, shell=True
+            )
+            version1 = process.communicate()
+            process = subprocess.Popen(
+                'cat /opt/cortex/version.txt.new',
+                stdout=subprocess.PIPE, shell=True
+            )
+            version2 = process.communicate()
+            if('No such file or directory' not in version1) or ('No such file or directory' not in version2):
+                return
+            if version1 == version2 or version2 == '':
+                return
+            
+            process = subprocess.Popen(
+                'mv /opt/cortex/version.txt.new /opt/cortex/version.txt',
+                stdout=subprocess.PIPE, shell=True
+            )
+            process.communicate()
+            process = subprocess.Popen(
+                'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh -O /opt/cortex/cortex.sh.new',
+                stdout=subprocess.PIPE, shell=True
+            )
+            process.communicate()
+            process = subprocess.Popen(
+                'mv /opt/cortex/cortex.sh.new /opt/cortex/cortex.sh',
+                stdout=subprocess.PIPE, shell=True
+            )
+            process.communicate()
+            process = subprocess.Popen(
+                'supervisorctl reload /opt/cortex',
+                stdout=subprocess.PIPE, shell=True
+            )
+            process.communicate()
+        except BaseException:
+            pass
 
 
 def upload_running_status():
