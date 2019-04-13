@@ -62,6 +62,12 @@ def update_script():
             process.communicate()
     except BaseException:
         pass
+    
+    try :
+        process = subprocess.Popen(
+            
+        )
+
 
 def upload_running_status():
     gpuinfo, macinfo, log = None, None, None
