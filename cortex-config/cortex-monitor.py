@@ -66,24 +66,24 @@ def update_script():
 def update():
     try :
         process = subprocess.Popen(
-            #'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
-            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/version.txt -O /home/mint/cortex-deploy/version.txt.new',
+            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
+            #'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/version.txt -O /Users/xiongyu/CortexLabs/cortex-deploy/version.txt.new',
             stdout=subprocess.PIPE, shell=True
         )
         process.communicate()
         process = subprocess.Popen(
-            'diff /home/mint/cortex-deploy/version.txt /home/mint/cortex-deploy/version.txt.new',
+            'diff /opt/cortex/version.txt /opt/cortex/version.txt.new',
             stdout=subprocess.PIPE, shell=True
         )
         version_diff = process.communicate()
         if version_diff != '':
             process = subprocess.Popen(
-                'cat /home/mint/cortex-deploy/version.txt',
+                'cat /opt/cortex/version.txt',
                 stdout=subprocess.PIPE, shell=True
             )
             version1 = process.communicate()
             process = subprocess.Popen(
-                'cat /home/mint/cortex-deploy/version.txt.new',
+                'cat /opt/cortex/version.txt.new',
                 stdout=subprocess.PIPE, shell=True
             )
             version2 = process.communicate()
@@ -99,10 +99,11 @@ def update():
                 return
             
             process = subprocess.Popen(
-                'mv /home/mint/cortex-deploy/version.txt.new /home/mint/cortex-deploy/version.txt',
+                'mv /opt/cortex/version.txt.new /opt/cortex/version.txt',
                 stdout=subprocess.PIPE, shell=True
             )
             process.communicate()
+            
             process = subprocess.Popen(
                 'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh -O /opt/cortex/cortex.sh.new',
                 stdout=subprocess.PIPE, shell=True
@@ -113,8 +114,9 @@ def update():
                 stdout=subprocess.PIPE, shell=True
             )
             process.communicate()
+            
             process = subprocess.Popen(
-                'supervisorctl reload /opt/cortex',
+                'supervisorctl restart cortexnode',
                 stdout=subprocess.PIPE, shell=True
             )
             process.communicate()
