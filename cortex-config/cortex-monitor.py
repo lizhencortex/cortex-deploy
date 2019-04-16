@@ -20,7 +20,7 @@ def sh(command):
     p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
     ret, err = p.communicate()
     if err != None:
-        raise Exception(command + 'failed, ' + err)
+        raise Exception(err)
     else:
         return ret
 
@@ -66,7 +66,7 @@ def upload_running_status():
     gpuinfo, macinfo, log = None, None, None
 
     try:
-        gpuinfo, error = sh('nvidia-smi -q', stdout=PIPE, shell=True)
+        gpuinfo = sh('nvidia-smi -q')
         gpuinfo = [x for x in gpuinfo.decode("utf-8") .split('\n') if 'N/A' not in x][3:]
 
         root = {}
