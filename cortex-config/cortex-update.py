@@ -30,7 +30,7 @@ def ge(v1, v2):
 def sh(command):
     p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
     ret, err = p.communicate()
-    if err != None:
+    if err != None and err != '':
         raise Exception(err)
     else:
         return ret
@@ -47,10 +47,10 @@ def save_config(config):
 
 def update():
     try:
-        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/dev/config.json -O /opt/cortex/update.json')
+        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/version.json -O /opt/cortex/update.json')
         update = load_config('/opt/cortex/update.json')
         config = load_config('/opt/cortex/config.json')
-
+        # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
@@ -58,17 +58,28 @@ def update():
                 sh('mv /opt/cortex/cortex.sh.new /opt/cortex/cortex.sh')
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
-
+        
+        # minerpool
         minerpool_config = config.get('minerpool', None)
         if minerpool_config != None:
             pass
 
+        # miner
         miner_config = config.get('miner', None)
         if miner_config != None:
             pass
         
+        # monitor
+        monitor_config = config.get('monitor', None)
+        if monitor_config != None:
+            if monitor_config['autoupate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
+                sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
+                sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
+                sh('service cortex-monitor restart')
+        
         save_config(config)
-    except BaseException:
+    except BaseException as e:
+        print('error', e)
         pass
 
 if __name__ == '__main__':

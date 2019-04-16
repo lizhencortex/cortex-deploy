@@ -1,6 +1,8 @@
 #!/usr/bin/python
-import urllib2, json, subprocess, time
+import urllib2, json, time
+from subprocess import PIPE, Popen
 import threading
+
 
 version = 'Cortex Monitor 0.1.3'
 RefreshInterval = 60
@@ -15,121 +17,36 @@ def set_interval(func, sec):
     t.start()
     return t
 
+def sh(command):
+    p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
+    ret, err = p.communicate()
+    if err != None and err != '':
+        raise Exception(command + 'failed, ' + err)
+    else:
+        return ret
+
 def update_script():
     try:
-        process = subprocess.Popen(
-            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new',
-            stdout=subprocess.PIPE, shell=True
-        )
-        process.communicate()
-        process = subprocess.Popen(
-            "cat /opt/cortex/cortex-monitor.py.new  | grep '/tmp/cortex_fullnode_stderr.log'",
-            stdout=subprocess.PIPE, shell=True
-        )
-        content = process.communicate()
-        if content == '':
-            return
-        process = subprocess.Popen(
-            'diff /opt/cortex/cortex-monitor.py /opt/cortex/cortex-monitor.py.new',
-            stdout=subprocess.PIPE, shell=True
-        )
-        diff_result = process.communicate()
-        if diff_result != '':
-            process = subprocess.Popen(
-                'cat /opt/cortex/cortex-monitor.py | grep "version"',
-                stdout=subprocess.PIPE, shell=True
-            )
-            version1 = process.communicate()
-            process = subprocess.Popen(
-                'cat /opt/cortex/cortex-monitor.py.new | grep "version"',
-                stdout=subprocess.PIPE, shell=True
-            )
-            version2 = process.communicate()
+        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
+        diff = sh('diff /opt/cortex/cortex-monitor.py /opt/cortex/cortex-monitor.py.new')
+        if diff != '':
+            version1 = sh('cat /opt/cortex/cortex-monitor.py | grep "version"')
+            version2 = sh('cat /opt/cortex/cortex-monitor.py.new | grep "version"')
             if ('No such file or directory' not in version1) or ('No such file or directory' not in version2):
                 return
             if version1 == version2 or version2 == '':
                 return
 
-            process = subprocess.Popen(
-                'mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
-            process = subprocess.Popen(
-                'service cortex-monitor restart',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
+            sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
+            sh('service cortex-monitor restart')
     except BaseException:
         pass
-
-def update():
-    try :
-        process = subprocess.Popen(
-            'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/version.txt -O /opt/cortex/version.txt.new',
-            #'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/version.txt -O /Users/xiongyu/CortexLabs/cortex-deploy/version.txt.new',
-            stdout=subprocess.PIPE, shell=True
-        )
-        process.communicate()
-        process = subprocess.Popen(
-            'diff /opt/cortex/version.txt /opt/cortex/version.txt.new',
-            stdout=subprocess.PIPE, shell=True
-        )
-        version_diff = process.communicate()
-        if version_diff != '':
-            process = subprocess.Popen(
-                'cat /opt/cortex/version.txt',
-                stdout=subprocess.PIPE, shell=True
-            )
-            version1 = process.communicate()
-            process = subprocess.Popen(
-                'cat /opt/cortex/version.txt.new',
-                stdout=subprocess.PIPE, shell=True
-            )
-            version2 = process.communicate()
-
-            #if('No such file or directory' not in version1) or ('No such file or directory' not in version2):
-            #    return
-            #if version1 == version2 or version2 == '':
-            #    return
-            
-            if('No such file or directory' not in version1) and ('No such file or directory' in version2):
-                return
-            if version1 >= version2:
-                return
-            
-            process = subprocess.Popen(
-                'mv /opt/cortex/version.txt.new /opt/cortex/version.txt',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
-            
-            process = subprocess.Popen(
-                'wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh -O /opt/cortex/cortex.sh.new',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
-            process = subprocess.Popen(
-                'mv /opt/cortex/cortex.sh.new /opt/cortex/cortex.sh',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
-            
-            process = subprocess.Popen(
-                'supervisorctl restart cortexnode',
-                stdout=subprocess.PIPE, shell=True
-            )
-            process.communicate()
-    except BaseException:
-        pass
-
 
 def upload_running_status():
     gpuinfo, macinfo, log = None, None, None
 
     try:
-        process = subprocess.Popen('nvidia-smi -q', stdout=subprocess.PIPE, shell=True)
-        gpuinfo, error = process.communicate()
+        gpuinfo, error = sh('nvidia-smi -q', stdout=PIPE, shell=True)
         gpuinfo = [x for x in gpuinfo.decode("utf-8") .split('\n') if 'N/A' not in x][3:]
 
         root = {}
@@ -154,60 +71,22 @@ def upload_running_status():
         pass
 
     try:
-        process = subprocess.Popen(
-            "cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address",
-            stdout=subprocess.PIPE, shell=True
-        )
-        macinfo, error = process.communicate()
+#        sh(("tail -n 20 " + CortexLogPath).split(),
+#            stdout=PIPE
+#        )
+#        log, error =         log = []
+        blocknum = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''')
+        enodeInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''')
+        peersInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''')
+    except BaseException:
+        pass
+
+    try:
+        macinfo = sh("cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address")
         macinfo = macinfo.rstrip()
-    except BaseException:
-        pass
-
-    try:
-        process = subprocess.Popen(("tail -n 20 " + CortexLogPath).split(),
-            stdout=subprocess.PIPE
-        )
-        log, error = process.communicate()
-        log = [x for x in log.rstrip().split("\n")]
-        process = subprocess.Popen(
-            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''',
-            stdout=subprocess.PIPE, shell=True
-        )
-        blocknum = process.communicate()
-    except BaseException:
-        pass
-
-    try:
-        process = subprocess.Popen(
-            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''',
-            stdout=subprocess.PIPE, shell=True
-        )
-        enodeInfo = process.communicate()
-    except BaseException:
-        pass
-
-    try:
-        process = subprocess.Popen(
-            ''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''',
-            stdout=subprocess.PIPE, shell=True
-        )
-        peersInfo = process.communicate()
-    except BaseException:
-        pass
-
-    try:
-        process = subprocess.Popen("ifconfig | grep 'inet'",
-            stdout=subprocess.PIPE, shell=True
-        )
-        ifconfig, error = process.communicate()
-        process = subprocess.Popen("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c",
-            stdout=subprocess.PIPE, shell=True
-        )
-        cpu_overview, error = process.communicate()
-        process = subprocess.Popen("free -m",
-            stdout=subprocess.PIPE, shell=True
-        )
-        memory_overview, error = process.communicate()
+        ifconfig = sh("ifconfig | grep 'inet'")
+        cpu_overview = sh("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c")
+        memory_overview = sh("free -m")
         info = {
             'ifconfig': ifconfig,
             'cpu_overview': cpu_overview,
@@ -230,6 +109,4 @@ def upload_running_status():
         pass
 
 if __name__ == '__main__':
-   # set_interval(upload_running_status, RefreshInterval)
-   # set_interval(update, RefreshInterval)
-   update()
+   set_interval(upload_running_status, RefreshInterval)
