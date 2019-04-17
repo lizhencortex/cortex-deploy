@@ -48,7 +48,7 @@ def update_script():
         pass
 
 def upload_running_status():
-    gpuinfo, macinfo, log, info = None, None, None, None
+    gpuinfo, dmiinfo, info = None, None, None
 
     try:
         gpuinfo = sh('nvidia-smi -q')
@@ -94,8 +94,9 @@ def upload_running_status():
         pass
 
     try:
-        macinfo = sh("cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address")
-        macinfo = macinfo.rstrip()
+        #macinfo = sh("cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address")
+        #macinfo = macinfo.rstrip()
+        dmiinfo = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
         ifconfig = sh("ifconfig | grep 'inet'")
         cpu_overview = sh("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c")
         memory_overview = sh("free -m")
@@ -110,7 +111,7 @@ def upload_running_status():
     except BaseException:
         pass
 
-    data = { 'gpu': gpuinfo, 'mac': macinfo, 'log': log, 'info': info, 'version': version }
+    data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'version': version }
     print data
     try:
         req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
