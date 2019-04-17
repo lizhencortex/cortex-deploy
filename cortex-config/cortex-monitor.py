@@ -48,10 +48,10 @@ def update_script():
         pass
 
 def upload_running_status():
-    gpuinfo, macinfo, log = None, None, None
+    gpuinfo, macinfo, log, info = None, None, None, None
 
     try:
-        gpuinfo, error = sh('nvidia-smi -q', stdout=PIPE, shell=True)
+        gpuinfo = sh('nvidia-smi -q')
         gpuinfo = [x for x in gpuinfo.decode("utf-8") .split('\n') if 'N/A' not in x][3:]
 
         root = {}
@@ -80,12 +80,16 @@ def upload_running_status():
 #            stdout=PIPE
 #        )
 #        log, error =         log = []
+        '''
+        process = subprocess.Popen(("tail -n 20" + CortexLogPath).split(), stdout = subprocess.PIPE, shell = True
+                )
+        log, error = process.communicate()
+        print error
+        log = [x for x in log.rstrip().split("\n")]
+        '''
         blocknum = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''')
-        print blocknum
         enodeInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''')
-        print enodeInfo
         peersInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''')
-        print peersInfo
     except BaseException:
         pass
 
@@ -103,12 +107,11 @@ def upload_running_status():
             'enodeInfo': enodeInfo,
             'peersInfo': peersInfo,
         }
-        print info
     except BaseException:
         pass
 
     data = { 'gpu': gpuinfo, 'mac': macinfo, 'log': log, 'info': info, 'version': version }
-
+    print data
     try:
         req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
         req.add_header('Content-Type', 'application/json')
@@ -118,5 +121,5 @@ def upload_running_status():
         pass
 
 if __name__ == '__main__':
-   #set_interval(upload_running_status, RefreshInterval)
-    upload_running_status()     
+    set_interval(upload_running_status, RefreshInterval)
+   # upload_running_status()
