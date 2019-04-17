@@ -20,11 +20,16 @@ def set_interval(func, sec):
 def sh(command):
     p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
     ret, err = p.communicate()
+    if ret != None :
+        return ret
+    else:
+        raise Exception(command + 'failed,' + err)
+    '''
     if err != None and err != '':
         raise Exception(command + 'failed, ' + err)
     else:
         return ret
-
+    '''
 def update_script():
     try:
         sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
@@ -76,8 +81,11 @@ def upload_running_status():
 #        )
 #        log, error =         log = []
         blocknum = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''')
+        print blocknum
         enodeInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''')
+        print enodeInfo
         peersInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''')
+        print peersInfo
     except BaseException:
         pass
 
@@ -95,6 +103,7 @@ def upload_running_status():
             'enodeInfo': enodeInfo,
             'peersInfo': peersInfo,
         }
+        print info
     except BaseException:
         pass
 
@@ -109,4 +118,5 @@ def upload_running_status():
         pass
 
 if __name__ == '__main__':
-   set_interval(upload_running_status, RefreshInterval)
+   #set_interval(upload_running_status, RefreshInterval)
+    upload_running_status()     
