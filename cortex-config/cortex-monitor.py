@@ -3,11 +3,8 @@ import urllib2, json, time
 from subprocess import PIPE, Popen
 import threading
 
-
 version = 'Cortex Monitor 0.1.3'
 RefreshInterval = 60
-RefreshScriptInterval = 3600
-CortexLogPath = '/tmp/cortex_fullnode_stderr.log'
 
 def set_interval(func, sec):
     def func_wrapper():
@@ -24,12 +21,7 @@ def sh(command):
         return ret
     else:
         raise Exception(command + 'failed,' + err)
-    '''
-    if err != None and err != '':
-        raise Exception(command + 'failed, ' + err)
-    else:
-        return ret
-    '''
+    
 def update_script():
     try:
         sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
@@ -76,17 +68,6 @@ def upload_running_status():
         pass
 
     try:
-#        sh(("tail -n 20 " + CortexLogPath).split(),
-#            stdout=PIPE
-#        )
-#        log, error =         log = []
-        '''
-        process = subprocess.Popen(("tail -n 20" + CortexLogPath).split(), stdout = subprocess.PIPE, shell = True
-                )
-        log, error = process.communicate()
-        print error
-        log = [x for x in log.rstrip().split("\n")]
-        '''
         blocknum = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''')
         enodeInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''')
         peersInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''')
@@ -94,8 +75,6 @@ def upload_running_status():
         pass
 
     try:
-        #macinfo = sh("cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address")
-        #macinfo = macinfo.rstrip()
         dmiinfo = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
         ifconfig = sh("ifconfig | grep 'inet'")
         cpu_overview = sh("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c")
@@ -112,7 +91,7 @@ def upload_running_status():
         pass
 
     data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'version': version }
-    print data
+
     try:
         req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
         req.add_header('Content-Type', 'application/json')
@@ -123,4 +102,4 @@ def upload_running_status():
 
 if __name__ == '__main__':
     set_interval(upload_running_status, RefreshInterval)
-   # upload_running_status()
+

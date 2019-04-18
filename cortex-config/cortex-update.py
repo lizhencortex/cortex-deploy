@@ -30,10 +30,10 @@ def ge(v1, v2):
 def sh(command):
     p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
     ret, err = p.communicate()
-    if err != None and err != '':
-        raise Exception(err)
-    else:
+    if ret != None :
         return ret
+    else:
+        raise Exception(command + 'failed,' + err)
 
 def load_config(path):
     with open(path, 'r') as raw_config:
@@ -47,7 +47,7 @@ def save_config(config):
 
 def update():
     try:
-        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/version.json -O /opt/cortex/update.json')
+        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/config.json -O /opt/cortex/update.json')
         update = load_config('/opt/cortex/update.json')
         config = load_config('/opt/cortex/config.json')
         # cortexnode
@@ -76,6 +76,7 @@ def update():
                 sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
                 sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
                 sh('service cortex-monitor restart')
+                config['monitor']['version'] = update['monitor']['version']
         
         save_config(config)
     except BaseException as e:
