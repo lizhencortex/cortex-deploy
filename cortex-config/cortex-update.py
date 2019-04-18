@@ -4,8 +4,10 @@ from subprocess import PIPE, Popen
 import threading
 import re
 
-version = 'CortexAutoUpdate 1.0.0'
+tmpDir = '/tmp/cortex/'
+updateUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/config.json'
 RefreshScriptInterval = 3600
+'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 
 def set_interval(func, sec):
     def func_wrapper():
@@ -25,7 +27,7 @@ def ge(v1, v2):
     if(v1 >= v2):
         return True
     else:
-        return False     
+        return False
 
 def sh(command):
     p = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
@@ -47,18 +49,21 @@ def save_config(config):
 
 def update():
     try:
-        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/config.json -O /opt/cortex/update.json')
-        update = load_config('/opt/cortex/update.json')
+        sh('rm -r ' + tmpDir)
+        sh('mkdir -p ' + tmpDir)
+        updateJsonPath = tmpDir + 'update.json'
+        sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
+        update = load_config(updateJsonPath)
         config = load_config('/opt/cortex/config.json')
         # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
-                sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh -O /opt/cortex/cortex.sh.new')
+                sh('wget -q' + node_config['url'] + ' -O /opt/')
                 sh('mv /opt/cortex/cortex.sh.new /opt/cortex/cortex.sh')
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
-        
+
         # minerpool
         minerpool_config = config.get('minerpool', None)
         if minerpool_config != None:
@@ -68,7 +73,7 @@ def update():
         miner_config = config.get('miner', None)
         if miner_config != None:
             pass
-        
+
         # monitor
         monitor_config = config.get('monitor', None)
         if monitor_config != None:
@@ -77,7 +82,7 @@ def update():
                 sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
                 sh('service cortex-monitor restart')
                 config['monitor']['version'] = update['monitor']['version']
-        
+
         save_config(config)
     except BaseException as e:
         print('error', e)

@@ -21,23 +21,6 @@ def sh(command):
         return ret
     else:
         raise Exception(command + 'failed,' + err)
-    
-def update_script():
-    try:
-        sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
-        diff = sh('diff /opt/cortex/cortex-monitor.py /opt/cortex/cortex-monitor.py.new')
-        if diff != '':
-            version1 = sh('cat /opt/cortex/cortex-monitor.py | grep "version"')
-            version2 = sh('cat /opt/cortex/cortex-monitor.py.new | grep "version"')
-            if ('No such file or directory' not in version1) or ('No such file or directory' not in version2):
-                return
-            if version1 == version2 or version2 == '':
-                return
-
-            sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
-            sh('service cortex-monitor restart')
-    except BaseException:
-        pass
 
 def upload_running_status():
     gpuinfo, dmiinfo, info = None, None, None
