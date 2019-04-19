@@ -29,6 +29,7 @@ def set_interval(func, sec):
     return t
 
 def update_script(node_config):
+
     newNodePath = tmpDir + "cortex.sh"
     cortexnode = sh('cat ' + newNodePath)
     d = dict()
@@ -89,7 +90,7 @@ def update():
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
-                sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortrx.sh')
+                sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortex.sh')
                 update_script(node_config)
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
