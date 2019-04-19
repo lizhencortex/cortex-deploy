@@ -84,7 +84,7 @@ def update():
         sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
         update = load_config(updateJsonPath)
         config = load_config(configJsonPath)
-        
+
         # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
@@ -93,7 +93,6 @@ def update():
                 update_script(node_config)
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
-
         # minerpool
         minerpool_config = config.get('minerpool', None)
         if minerpool_config != None:
@@ -107,7 +106,7 @@ def update():
         # monitor
         monitor_config = config.get('monitor', None)
         if monitor_config != None:
-            if monitor_config['autoupate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
+            if monitor_config['autoupdate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
                 sh('wget -q ' + monitor_config['url'] + '-O' + tmpDir)
                 sh('mv ' + tmpDir + 'cortex-monitor.py' + configDir + 'cortex-monitor.py')
                 sh('service cortex-monitor restart')
