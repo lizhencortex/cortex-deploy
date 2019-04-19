@@ -116,13 +116,15 @@ def update():
                 sh('mv ' + tmpDir + 'cortex-monitor.py' + configDir + 'cortex-monitor.py')
                 sh('service cortex-monitor restart')
                 config['monitor']['version'] = update['monitor']['version']
+        
+        save_config(config)
 
     except BaseException as e:
         print('error', e)
         config['error_log'] = e
+        save_config(config)
         pass
     
-    save_config(config)
-
 if __name__ == '__main__':
-    set_interval(update, RefreshScriptInterval)
+    update()
+    #set_interval(update, RefreshScriptInterval)
