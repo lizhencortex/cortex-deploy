@@ -8,7 +8,7 @@ import re
 updateUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/config.json'
 tmpDir = '/tmp/cortex/'
 configDir = '/opt/cortex/'
-
+cortexShellUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 RefreshScriptInterval = 3600
 
 #'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
@@ -28,8 +28,13 @@ def set_interval(func, sec):
     t.start()
     return t
 
-def update_script(node_config):
-    nodePath = configDir + "cortex.sh"
+def update_script(node_config, Log):
+    if(Log == "rm old cortex.sh"):
+        sh('wget -q ' + cortexShellUrl + ' -O ' + tmpDir)
+        nodePath = tmpDir + 'cortex.sh'
+    else:
+        nodePath = configDir + "cortex.sh"
+    
     cortexnode = sh('cat ' + nodePath)
     d = dict()
     
@@ -90,7 +95,7 @@ def update():
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
                 sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir)
-                update_script(node_config)
+                update_script(node_config,  config['updatelog'])
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
         # minerpool
