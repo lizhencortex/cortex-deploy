@@ -28,13 +28,8 @@ def set_interval(func, sec):
     t.start()
     return t
 
-def update_script(node_config, Log):
-    if(Log == "rm old cortex.sh"):
-        sh('wget -q ' + cortexShellUrl + ' -O ' + tmpDir)
-        nodePath = tmpDir + 'cortex.sh'
-    else:
-        nodePath = configDir + "cortex.sh"
-    
+def update_script(node_config):
+    nodePath = configDir + "cortex.sh"
     cortexnode = sh('cat ' + nodePath)
     d = dict()
     
@@ -95,18 +90,9 @@ def update():
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
                 sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir)
-                update_script(node_config,  config['updatelog'])
+                update_script(node_config)
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
-        # minerpool
-        minerpool_config = config.get('minerpool', None)
-        if minerpool_config != None:
-            pass
-
-        # miner
-        miner_config = config.get('miner', None)
-        if miner_config != None:
-            pass
 
         # monitor
         monitor_config = config.get('monitor', None)

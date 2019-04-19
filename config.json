@@ -1,7 +1,7 @@
 {
     "cortexnode":
         {
-            "version": "0.1.3",
+            "version": "0.1.4",
             "cuda_version": "10.0",
             "rpcapi": "web3,eth,ctx,net,admin,txpool",
             "mode": "",
@@ -26,6 +26,5 @@
             "autoupdate": "disable",
             "url":"https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex-monitor.py"
         },
-    "error_log":"",
-    "updatelog":"rm old cortex.sh"
+    "error_log":""
 }
