@@ -14,8 +14,9 @@ RefreshScriptInterval = 3600
 #'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 
 # rx
-port = re.compile(r'(--port)\s(\d+)')
+CUDA = re.compile(r'CUDA_VERSION')
 coinbase = re.compile(r'(MINER_COINBASE)=(\'0x[0-9|a-f]{40}\')')
+port = re.compile(r'(--port)\s(\d+)')
 rpcapi = re.compile(r'(--rpcapi)\s([\w+,]+\w+)')
 
 
@@ -31,10 +32,11 @@ def update_script(node_config):
     nodePath = configDir + "cortex.sh"
     cortexnode = sh('cat ' + nodePath)
     d = dict()
-
+    
     d[port] = "--port " + node_config["port"]
     d[rpcapi] = "--rpcapi " + node_config["rpcapi"]
     d[coinbase] = "MINER_COINBASE=" + node_config["MINER_COINBASE"]
+    d[CUDA] = "cuda-" + node_config["cuda_version"]
     
     for key, value in d.items():
         cortexnode = re.sub(key, value, cortexnode)
@@ -82,6 +84,7 @@ def update():
         sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
         update = load_config(updateJsonPath)
         config = load_config(configJsonPath)
+        
         # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
@@ -105,7 +108,7 @@ def update():
         monitor_config = config.get('monitor', None)
         if monitor_config != None:
             if monitor_config['autoupate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
-                sh('wget -q ' + monitor_config['url'] '-O' tmpDir)
+                sh('wget -q ' + monitor_config['url'] + '-O' + tmpDir)
                 sh('mv ' + tmpDir + 'cortex-monitor.py' + configDir + 'cortex-monitor.py')
                 sh('service cortex-monitor restart')
                 config['monitor']['version'] = update['monitor']['version']
