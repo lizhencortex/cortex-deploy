@@ -4,10 +4,20 @@ from subprocess import PIPE, Popen
 import threading
 import re
 
-tmpDir = '/tmp/cortex/'
+
 updateUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/config.json'
+tmpDir = '/tmp/cortex/'
+configDir = '/opt/cortex/'
+
 RefreshScriptInterval = 3600
-'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
+
+#'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
+
+# rx
+port = re.compile(r'(--port)\s(\d+)')
+coinbase = re.compile(r'(MINER_COINBASE)=(\'0x[0-9|a-f]{40}\')')
+rpcapi = re.compile(r'(--rpcapi)\s([\w+,]+\w+)')
+
 
 def set_interval(func, sec):
     def func_wrapper():
@@ -16,6 +26,22 @@ def set_interval(func, sec):
     t = threading.Timer(sec, func_wrapper)
     t.start()
     return t
+
+def update_script(node_config):
+    nodePath = configDir + "cortex.sh"
+    cortexnode = sh('cat ' + nodePath)
+    d = dict()
+
+    d[port] = "--port " + node_config["port"]
+    d[rpcapi] = "--rpcapi " + node_config["rpcapi"]
+    d[coinbase] = "MINER_COINBASE=" + node_config["MINER_COINBASE"]
+    
+    for key, value in d.items():
+        cortexnode = re.sub(key, value, cortexnode)
+    
+    with open(nodePath, 'w+') as f:
+        f.write(cortexnode)
+        f.close()
 
 def ge(v1, v2):
     v1 = re.split('\.', v1)
@@ -52,15 +78,16 @@ def update():
         sh('rm -r ' + tmpDir)
         sh('mkdir -p ' + tmpDir)
         updateJsonPath = tmpDir + 'update.json'
+        configJsonPath = configDir + 'config.json'
         sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
         update = load_config(updateJsonPath)
-        config = load_config('/opt/cortex/config.json')
+        config = load_config(configJsonPath)
         # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
-                sh('wget -q' + node_config['url'] + ' -O /opt/')
-                sh('mv /opt/cortex/cortex.sh.new /opt/cortex/cortex.sh')
+                sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir)
+                update_script(node_config)
                 sh('supervisorctl restart cortexnode')
                 config['cortexnode']['version'] = update['cortexnode']['version']
 
@@ -78,15 +105,17 @@ def update():
         monitor_config = config.get('monitor', None)
         if monitor_config != None:
             if monitor_config['autoupate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
-                sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/master/cortex-config/cortex-monitor.py -O /opt/cortex/cortex-monitor.py.new')
-                sh('mv /opt/cortex/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
+                sh('wget -q ' + monitor_config['url'] '-O' tmpDir)
+                sh('mv ' + tmpDir + 'cortex-monitor.py' + configDir + 'cortex-monitor.py')
                 sh('service cortex-monitor restart')
                 config['monitor']['version'] = update['monitor']['version']
 
-        save_config(config)
     except BaseException as e:
         print('error', e)
+        config['error_log'] = e
         pass
+    
+    save_config(config)
 
 if __name__ == '__main__':
     set_interval(update, RefreshScriptInterval)
