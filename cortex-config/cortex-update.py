@@ -113,5 +113,4 @@ def update():
         pass
     
 if __name__ == '__main__':
-    update()
-    #set_interval(update, RefreshScriptInterval)
+    set_interval(update, RefreshScriptInterval)
