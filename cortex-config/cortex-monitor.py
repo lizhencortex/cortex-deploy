@@ -2,7 +2,7 @@
 import urllib2, json, subprocess, time
 import threading
 
-version = 'Cortex Monitor 0.1.2'
+version = 'Cortex Monitor 0.1.2 No such file or directory'
 RefreshInterval = 60
 RefreshScriptInterval = 3600
 CortexLogPath = '/tmp/cortex_fullnode_stderr.log'
