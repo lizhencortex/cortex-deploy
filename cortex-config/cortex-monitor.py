@@ -49,14 +49,7 @@ def upload_running_status():
         gpuinfo = root
     except BaseException:
         pass
-
-    try:
-        blocknum = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' 127.0.0.1:30089 ''')
-        enodeInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_nodeInfo","params":[],"id":83}' 127.0.0.1:30089 ''')
-        peersInfo = sh(''' curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"admin_peers","params":[],"id":83}' 127.0.0.1:30089 ''')
-    except BaseException:
-        pass
-
+    
     try:
         dmiinfo = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
         ifconfig = sh("ifconfig | grep 'inet'")
@@ -66,9 +59,6 @@ def upload_running_status():
             'ifconfig': ifconfig,
             'cpu_overview': cpu_overview,
             'memory_overview': memory_overview,
-            'blocknum': blocknum,
-            'enodeInfo': enodeInfo,
-            'peersInfo': peersInfo,
         }
     except BaseException:
         pass
