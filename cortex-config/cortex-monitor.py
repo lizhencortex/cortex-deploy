@@ -22,8 +22,14 @@ def sh(command):
     else:
         raise Exception(command + 'failed,' + err)
 
+def load_config(path):
+    with open(path, 'r') as raw_config:
+        config = json.load(raw_config)
+    return config
+
+
 def upload_running_status():
-    gpuinfo, dmiinfo, info = None, None, None
+    gpuinfo, dmiinfo, info, config = None, None, None, None
 
     try:
         gpuinfo = sh('nvidia-smi -q')
@@ -70,10 +76,11 @@ def upload_running_status():
             'enodeInfo': enodeInfo,
             'peersInfo': peersInfo,
         }
+        config = load_config('/opt/cortex/config.json')
     except BaseException:
         pass
 
-    data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'version': version }
+    data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'config': config, 'version': version }
 
     try:
         req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
