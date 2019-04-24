@@ -82,6 +82,7 @@ def update():
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update_config = update_req.json()
         print update_config
+        '''
         configJsonPath = configDir + 'config.json'
         config = load_config(configJsonPath)
         # cortexnode
@@ -93,6 +94,7 @@ def update():
                 update_script(update_config['cortexnode'])
                 sh('supervisorctl restart cortexnode')
                 save_config(update_config)
+        ''' 
     except BaseException as e:
         print('error', e)
     '''           
@@ -134,5 +136,5 @@ def update():
         pass
     '''
 if __name__ == '__main__':
-    
-    set_interval(update, RefreshScriptInterval)
+    update()
+    #set_interval(update, RefreshScriptInterval)
