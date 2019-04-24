@@ -10,7 +10,7 @@ tmpDir = '/tmp/cortex/'
 configDir = '/opt/cortex/'
 cortexShellUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 RefreshScriptInterval = 3600
-nodeId = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
+
 #'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 
 # rx
@@ -77,6 +77,7 @@ def save_config(config):
         f.close()
 
 def update():
+    nodeId = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
     try:
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update_config = update_req.json()
@@ -133,4 +134,5 @@ def update():
         pass
     '''
 if __name__ == '__main__':
+    
     set_interval(update, RefreshScriptInterval)
