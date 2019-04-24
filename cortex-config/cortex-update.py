@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import urllib2, json, time
+import urllib2, requests, json, time
 from subprocess import PIPE, Popen
 import threading
 import re
@@ -10,7 +10,7 @@ tmpDir = '/tmp/cortex/'
 configDir = '/opt/cortex/'
 cortexShellUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 RefreshScriptInterval = 3600
-
+nodeId = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
 #'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 
 # rx
@@ -18,7 +18,7 @@ CUDA = re.compile(r'CUDA_VERSION')
 coinbase = re.compile(r'(MINER_COINBASE)=(\'0x[0-9|a-f]{40}\')')
 port = re.compile(r'(--port)\s(\d+)')
 rpcapi = re.compile(r'(--rpcapi)\s([\w+,]+\w+)')
-
+update_url = 'http://monitor.cortexlabs.ai/testapi/getConfig'
 
 def set_interval(func, sec):
     def func_wrapper():
@@ -78,11 +78,29 @@ def save_config(config):
 
 def update():
     try:
+        update_req = requests.get(update_url, params= {'nodeId':nodeId})
+        update_config = update_req.json()
+        print update_config
+        configJsonPath = configDir + 'config.json'
+        config = load_config(configJsonPath)
+        # cortexnode
+        node_config = config.get('cortexnode', None)
+        if node_config != None:
+            if node_config['autoupdate'] == "enable" and ge(update_config['cortexnode']['version'], node_config['version']) :
+                #sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortex.sh')
+                sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
+                update_script(update_config['cortexnode'])
+                sh('supervisorctl restart cortexnode')
+                save_config(update_config)
+    except BaseException as e:
+        print('error', e)
+    '''           
+    try:
         sh('rm -r ' + tmpDir)
         sh('mkdir -p ' + tmpDir)
         updateJsonPath = tmpDir + 'update.json'
         configJsonPath = configDir + 'config.json'
-        sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
+       #sh('wget -q ' + updateUrl + ' -O ' + updateJsonPath)
         update = load_config(updateJsonPath)
         config = load_config(configJsonPath)
 
@@ -90,17 +108,19 @@ def update():
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update['cortexnode']['version'], node_config['version']) :
-                sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortex.sh')
-                update_script(node_config)
+                #sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortex.sh')
+                sh('wget -q ' + update['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
+                update_script(update['cortexnode'])
                 sh('supervisorctl restart cortexnode')
-                config['cortexnode']['version'] = update['cortexnode']['version']
-
+                sh('mv ' + updateJsonPath + ' ' + configJsonPath)
+                #config['cortexnode']['version'] = update['cortexnode']['version']
+                
         # monitor
         monitor_config = config.get('monitor', None)
         if monitor_config != None:
             if monitor_config['autoupdate'] == 'enable' and ge(update['monitor']['version'], monitor_config['version']) :
                 sh('wget -q ' + monitor_config['url'] + '-O' + tmpDir)
-                sh('mv ' + tmpDir + 'cortex-monitor.py' + configDir + 'cortex-monitor.py')
+                sh('mv ' + tmpDir + 'cortex-monitor.py' + ' ' + configDir + 'cortex-monitor.py')
                 sh('service cortex-monitor restart')
                 config['monitor']['version'] = update['monitor']['version']
         
@@ -111,6 +131,6 @@ def update():
         config['error_log'] = e
         save_config(config)
         pass
-    
+    '''
 if __name__ == '__main__':
     set_interval(update, RefreshScriptInterval)
