@@ -11,8 +11,6 @@ configDir = '/opt/cortex/'
 cortexShellUrl = 'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
 RefreshScriptInterval = 3600
 
-#'https://raw.githubusercontent.com/lizhencortex/cortex-deploy/xy/cortex-config/cortex.sh'
-
 # rx
 CUDA = re.compile(r'CUDA_VERSION')
 coinbase = re.compile(r'(MINER_COINBASE)=(\'0x[0-9|a-f]{40}\')')
@@ -81,12 +79,10 @@ def update():
     try:
         sh('rm -r ' + tmpDir) 
         sh('mkdir -p ' + tmpDir)
+        
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update = update_req.json()
-        print update
         update_config = update[0]['Config']
-        print update_config
-        print 'check'
         
         configJsonPath = configDir + 'config.json'
         config = load_config(configJsonPath)
@@ -94,7 +90,6 @@ def update():
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update_config['cortexnode']['version'], node_config['version']) :
-                print  update_config['cortexnode']['url']
                 sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
                 update_script(update_config['cortexnode'])
                 sh('supervisorctl restart cortexnode')
@@ -140,5 +135,4 @@ def update():
         pass
     '''
 if __name__ == '__main__':
-    update()
-    #set_interval(update, RefreshScriptInterval)
+    set_interval(update, RefreshScriptInterval)
