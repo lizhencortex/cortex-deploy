@@ -64,7 +64,7 @@ def upload_running_status():
         pass
 
     try:
-        dmiinfo = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'")
+        dmiinfo = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'").strip('\n')
         ifconfig = sh("ifconfig | grep 'inet'")
         cpu_overview = sh("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c")
         memory_overview = sh("free -m")
