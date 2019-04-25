@@ -82,19 +82,17 @@ def update():
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update_config = update_req.json()
         print update_config
-        '''
+        
         configJsonPath = configDir + 'config.json'
         config = load_config(configJsonPath)
         # cortexnode
         node_config = config.get('cortexnode', None)
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update_config['cortexnode']['version'], node_config['version']) :
-                #sh('wget -q ' + node_config['url'] + ' -O ' + tmpDir + 'cortex.sh')
                 sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
                 update_script(update_config['cortexnode'])
                 sh('supervisorctl restart cortexnode')
                 save_config(update_config)
-        ''' 
     except BaseException as e:
         print('error', e)
     '''           
