@@ -29,7 +29,7 @@ def load_config(path):
 
 
 def upload_running_status():
-    gpuinfo, dmiinfo, info, config = None, None, None, None
+    gpuinfo, dmiinfo, info = None, None, None
 
     try:
         gpuinfo = sh('nvidia-smi -q')
@@ -76,11 +76,10 @@ def upload_running_status():
             'enodeInfo': enodeInfo,
             'peersInfo': peersInfo,
         }
-        config = load_config('/opt/cortex/config.json')
     except BaseException:
         pass
 
-    data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'config': config, 'version': version }
+    data = { 'gpu': gpuinfo, 'dmi': dmiinfo, 'info': info, 'version': version }
 
     try:
         req = urllib2.Request('http://monitor.cortexlabs.ai/testapi/send')
