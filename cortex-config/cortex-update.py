@@ -97,8 +97,8 @@ def update():
                 print  update_config['cortexnode']['url']
                 sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
                 update_script(update_config['cortexnode'])
-                #sh('supervisorctl restart cortexnode')
-                #save_config(update_config)
+                sh('supervisorctl restart cortexnode')
+                save_config(update_config)
     except BaseException as e:
         print('error', e)
     '''           
