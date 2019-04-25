@@ -82,7 +82,7 @@ def update():
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update = update_req.json()
         print update
-        update_config = update.get('Config', Node)
+        update_config = update[0]
         print update_config
         print 'check'
         
