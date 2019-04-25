@@ -79,6 +79,8 @@ def save_config(config):
 def update():
     nodeId = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'").strip('\n')
     try:
+        sh('rm -r ' + tmpDir) 
+        sh('mkdir -p ' + tmpDir)
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
         update = update_req.json()
         print update
@@ -93,15 +95,15 @@ def update():
         if node_config != None:
             if node_config['autoupdate'] == "enable" and ge(update_config['cortexnode']['version'], node_config['version']) :
                 print  update_config['cortexnode']['url']
-                #sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
-                #update_script(update_config['cortexnode'])
+                sh('wget -q ' + update_config['cortexnode']['url'] + ' -O ' + tmpDir + 'cortex.sh')
+                update_script(update_config['cortexnode'])
                 #sh('supervisorctl restart cortexnode')
                 #save_config(update_config)
     except BaseException as e:
         print('error', e)
     '''           
     try:
-        sh('rm -r ' + tmpDir)
+        sh('rm -r ' + tmpDir) 
         sh('mkdir -p ' + tmpDir)
         updateJsonPath = tmpDir + 'update.json'
         configJsonPath = configDir + 'config.json'
