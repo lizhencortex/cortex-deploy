@@ -80,7 +80,7 @@ def update():
     nodeId = sh("dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g'").strip('\n')
     try:
         update_req = requests.get(update_url, params= {'nodeId':nodeId})
-        update = update_req.json()
+        update = json.load(update_req)
         update_config = update['Config']
         print update_config
         
