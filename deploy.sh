@@ -1,25 +1,123 @@
 #!/bin/bash
 
-CUDA92=$(ls /usr/local | grep cuda-9.2)
-CUDA10=$(ls /usr/local | grep cuda-10.0)
-CUDA101=$(ls /usr/local | grep cuda-10.1)
-CUDA102=$(ls /usr/local | grep cuda-10.2)
-HAS_CUDA=$CUDA92$CUDA10$CUDA101$CUDA102
-CORTEX_BIN_PATH=/opt/cortex/cortex
-MINER_COINBASE='0xc0d86d03f451e38c2ee0fa0daf5c8d6e2d1243d2'
-DATA_DIR='data'
-RPC_API='personal,web3,ctxc,miner,net,txpool,admin'
+clean() {
+    DPLOY_PATH="/opt/cortex"
+    echo 'Try to stop existing cortexnode'
+    supervisorctl stop cortexnode
+    echo 'Try to stop existing monitor service'
+    service cortex-monitor.sh stop
+    echo 'Try to remove existing deployment directory'
+    rm -rf $DPLOY_PATH
+}
 
-if [ -z $HAS_CUDA ]; then
-	echo CUDA library not found, stop
-	exit 1
+COMMAND=""
+
+deploy() {
+    HAS_NVIDIA_DRIVER=$(which nvidia-smi)
+    if [ -z $HAS_NVIDIA_DRIVER ]; then
+        echo NVIDIA driver not found, stop
+        exit 1
+    else
+        echo NVIDIA driver detected
+    fi
+
+    HAS_SUPERVISORD=$(which supervisord)
+    if [ -z $HAS_SUPERVISORD ]; then
+        echo Supervisor not found, stop
+        exit 1
+    else
+        echo Supervisor detected
+    fi
+    clean
+
+    CUDA90=$(ls /usr/local | grep cuda-9.0)
+    CUDA92=$(ls /usr/local | grep cuda-9.2)
+    CUDA10=$(ls /usr/local | grep cuda-10.0)
+    CUDA101=$(ls /usr/local | grep cuda-10.1)
+    HAS_CUDA=$CUDA90$CUDA92$CUDA10$CUDA101
+    DPLOY_PATH="/opt/cortex"
+
+    if [ -z $HAS_CUDA ]; then
+        echo CUDA library not found, stop
+        exit 1
+    fi
+
+    echo CUDA detected
+    if [ -n "$1" ]; then
+        DPLOY_PATH="$1"
+    fi
+
+    rm -rf $DPLOY_PATH
+    mkdir -p $DPLOY_PATH
+    chmod 777 $DPLOY_PATH -R
+    mkdir -p $DPLOY_PATH/logs
+    wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/dev -O cortex-package.zip
+    DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
+    if [ -z $DOWNLOAD_STATUS ]; then
+        echo download failed
+        exit 1
+    fi
+
+    unzip cortex-package.zip
+    mv cortex-deploy-dev cortex-package
+    chmod +x ./cortex-package/cortex-monitor.sh
+    mv ./cortex-package/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
+    mv ./cortex-package/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
+
+    mv ./cortex-package/cortex.sh $DPLOY_PATH/
+    mv ./cortex-package/bin/* $DPLOY_PATH/
+    chmod +x $DPLOY_PATH/cortex
+    chmod +x $DPLOY_PATH/cortex.sh
+
+    update-rc.d cortex-monitor.sh defaults
+
+    supervisorctl reload
+    sleep 5
+    service cortex-monitor.sh start
+
+    rm cortex-package.zip
+    rm -r ./cortex-package
+
+    echo deploy finish
+}
+
+helpdoc() {
+    echo "Cortex full node deployment tool (version 0.1)"
+    echo "Usage: sudo $0 [options] command"
+
+    echo "Most used commands:"
+    echo "  deploy - download and deploy cortex fullnode"
+    echo "  clean - clean the current cortex environment"
+}
+
+if [ $UID -ne 0 ]; then
+    echo "Superuser privileges are required to run this script."
+    echo "=================================================================="
+    helpdoc
+    exit 1
 fi
 
-export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=$(pwd):/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+case "$1" in
 
-$CORTEX_BIN_PATH --port 30088 \
-    --rpc --rpcvhosts '*' --rpccorsdomain '*' --rpcport 30089 --rpcapi $RPC_API --rpcaddr "127.0.0.1" \
-    --verbosity 3 \
-    --mine --miner.threads=0 --miner.cuda --miner.devices=0 \
-    --miner.coinbase=$MINER_COINBASE --datadir=$DATA_DIR
+    'deploy')
+        deploy
+        ;;
+
+    'install')
+        deploy
+        ;;
+
+    'clean')
+        clean
+        echo 'Try to remove existing cortex chain data'
+        rm -rf /root/.cortex
+        rm -rf $HOME/.cortex
+        ;;
+
+    *)
+        helpdoc
+        exit 1
+        ;;
+esac
+
+exit 0
