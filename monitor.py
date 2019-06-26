@@ -34,8 +34,8 @@ def update_script():
             version2 = sh('cat /tmp/version.txt.new')
             if version2 >= version1 or version2 == '':
                 return
-            sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/dev/monitor.py -O /tmp/monitor.py.new')
-            sh('mv /tmp/monitor.py.new /opt/cortex/monitor.py')
+            sh('wget -q https://raw.githubusercontent.com/lizhencortex/cortex-deploy/dev/cortex-monitor.py -O /tmp/cortex-monitor.py.new')
+            sh('mv /tmp/cortex-monitor.py.new /opt/cortex/cortex-monitor.py')
             sh('mv /tmp/version.txt.new /opt/cortex/version.txt')
             sh('service cortex-monitor restart')
     except BaseException:
@@ -110,4 +110,4 @@ def upload_running_status():
 
 if __name__ == '__main__':
    set_interval(upload_running_status, RefreshInterval)
-   set_interval(update, RefreshInterval)
+   set_interval(update_script, RefreshScriptInterval)
