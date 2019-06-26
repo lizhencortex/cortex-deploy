@@ -21,5 +21,5 @@ export LD_LIBRARY_PATH=$(pwd):/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBR
 $CORTEX_BIN_PATH --port 30088 \
     --rpc --rpcvhosts '*' --rpccorsdomain '*' --rpcport 30089 --rpcapi $RPC_API --rpcaddr "127.0.0.1" \
     --verbosity 3 \
-    --mine --miner.threads=0 --miner.cuda --miner.devices=0 \
+    --miner.threads=0 \
     --miner.coinbase=$MINER_COINBASE --datadir=$DATA_DIR
