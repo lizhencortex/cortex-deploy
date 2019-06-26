@@ -63,6 +63,7 @@ deploy() {
     chmod +x ./cortex-package/cortex-monitor.sh
     mv ./cortex-package/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
     mv ./cortex-package/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
+    echo $(uuidgen) > /opt/cortex/uuid
 
     mv ./cortex-package/cortex-monitor.py $DPLOY_PATH/
     mv ./cortex-package/cortex.sh $DPLOY_PATH/

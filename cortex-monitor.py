@@ -3,7 +3,7 @@ import urllib2, json, time
 from subprocess import PIPE, Popen
 import threading
 
-version = 'Cortex Monitor 0.1.3'
+version = 'Cortex Monitor 0.1.4'
 port = 30089
 RefreshInterval = 60
 RefreshScriptInterval = 3600
@@ -23,7 +23,7 @@ def sh(command):
 
     if err != '' and err != None:
         print(command, err)
-        raise Exception(err)
+        return ''
     else:
         return ret
 
@@ -48,6 +48,8 @@ def upload_running_status():
 
     try:
         gpuinfo = sh('nvidia-smi -q')
+        if gpuinfo:
+            return
         gpuinfo = [x for x in gpuinfo.decode("utf-8") .split('\n') if 'N/A' not in x][3:]
         root = {}
         stack = [root]
@@ -78,8 +80,7 @@ def upload_running_status():
         pass
 
     try:
-        macinfo = sh("cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address")
-        macinfo = macinfo.rstrip()
+        macinfo = sh("cat /opt/cortex/uuid")
         ifconfig = sh("ifconfig | grep 'inet'")
         kernel_version = sh("uname -a")
         os_version = sh("head -n 1 /etc/issue")
