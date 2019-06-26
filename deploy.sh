@@ -59,7 +59,7 @@ deploy() {
     fi
 
     unzip cortex-package.zip
-    mv cortex-deploy-master cortex-package
+    mv cortex-deploy-dev cortex-package
     chmod +x ./cortex-package/cortex-monitor.sh
     mv ./cortex-package/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
     mv ./cortex-package/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
