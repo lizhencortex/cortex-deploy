@@ -61,11 +61,14 @@ deploy() {
     unzip cortex-package.zip
     mv cortex-deploy-master cortex-package
     chmod +x ./cortex-package/cortex-monitor.sh
-    mv ./cortex-package/service/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
+    mv ./cortex-package/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
     mv ./cortex-package/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
 
-    mv ./cortex-package/* $DPLOY_PATH/
+    mv ./cortex-package/cortex.sh $DPLOY_PATH/
+    mv ./cortex-package/bin/* $DPLOY_PATH/
     chmod +x $DPLOY_PATH/cortex
+    chmod +x $DPLOY_PATH/cortex.sh
+
     update-rc.d cortex-monitor.sh defaults
 
     supervisorctl reload
