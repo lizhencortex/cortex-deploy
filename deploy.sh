@@ -13,7 +13,7 @@ clean() {
 COMMAND=""
 
 deploy() {
-    HAS_NVIDIA_DRIVER=$(which nvidia-smi)
+    local HAS_NVIDIA_DRIVER=$(which nvidia-smi)
     if [ -z $HAS_NVIDIA_DRIVER ]; then
         echo NVIDIA driver not found, stop
         exit 1
@@ -21,7 +21,7 @@ deploy() {
         echo NVIDIA driver detected
     fi
 
-    HAS_SUPERVISORD=$(which supervisord)
+    local HAS_SUPERVISORD=$(which supervisord)
     if [ -z $HAS_SUPERVISORD ]; then
         echo Supervisor not found, stop
         exit 1
@@ -30,11 +30,11 @@ deploy() {
     fi
     clean
 
-    CUDA90=$(ls /usr/local | grep cuda-9.0)
-    CUDA92=$(ls /usr/local | grep cuda-9.2)
-    CUDA10=$(ls /usr/local | grep cuda-10.0)
-    CUDA101=$(ls /usr/local | grep cuda-10.1)
-    HAS_CUDA=$CUDA90$CUDA92$CUDA10$CUDA101
+    local CUDA90=$(ls /usr/local | grep cuda-9.0)
+    local CUDA92=$(ls /usr/local | grep cuda-9.2)
+    local CUDA10=$(ls /usr/local | grep cuda-10.0)
+    local CUDA101=$(ls /usr/local | grep cuda-10.1)
+    local HAS_CUDA=$CUDA90$CUDA92$CUDA10$CUDA101
     DPLOY_PATH="/opt/cortex"
 
     if [ -z $HAS_CUDA ]; then
@@ -52,22 +52,28 @@ deploy() {
     chmod 777 $DPLOY_PATH -R
     mkdir -p $DPLOY_PATH/logs
     wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/dev -O cortex-package.zip
-    DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
+    local DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
+    if [ -z $DOWNLOAD_STATUS ]; then
+        echo download failed
+        exit 1
+    fi
+    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0-stable.zip
+    local DOWNLOAD_STATUS=$(ls | grep cortex-v1.0.0-stable.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
 
-    unzip cortex-package.zip
-    mv cortex-deploy-dev cortex-package
-    chmod +x ./cortex-package/cortex-monitor.sh
-    mv ./cortex-package/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
-    mv ./cortex-package/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
+    unzip cortex_v1.0.0-stable.zip -d cortex-bin-tmp
+    unzip cortex-package.zip -d cortex-deploy-tmp
+    chmod +x ./cortex-package-tmp/cortex-monitor.sh
+    mv ./cortex-package-tmp/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
+    mv ./cortex-package-tmp/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
     echo $(uuidgen) > /opt/cortex/uuid
 
-    mv ./cortex-package/cortex-monitor.py $DPLOY_PATH/
-    mv ./cortex-package/cortex.sh $DPLOY_PATH/
-    mv ./cortex-package/bin/* $DPLOY_PATH/
+    mv ./cortex-package-tmp/cortex-monitor.py $DPLOY_PATH/
+    mv ./cortex-package-tmp/cortex.sh $DPLOY_PATH/
+    mv ./cortex-bin-tmp/* $DPLOY_PATH/
     chmod +x $DPLOY_PATH/cortex
     chmod +x $DPLOY_PATH/cortex.sh
 
@@ -78,7 +84,8 @@ deploy() {
     service cortex-monitor.sh start
 
     rm cortex-package.zip
-    rm -r ./cortex-package
+    rm -r ./cortex-package-tmp
+    rm -r ./cortex-bin-tmp
 
     echo deploy finish
 }
