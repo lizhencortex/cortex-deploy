@@ -60,7 +60,7 @@ deploy() {
         exit 1
     fi
     wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0-stable.zip cortex-stable.zip
-    local DOWNLOAD_STATUS=$(ls | grep cortex-v1.0.0-stable.zip)
+    local DOWNLOAD_STATUS=$(ls | grep cortex-stable.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
