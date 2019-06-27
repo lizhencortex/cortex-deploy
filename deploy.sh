@@ -52,30 +52,32 @@ deploy() {
     chmod 777 $DPLOY_PATH -R
     mkdir -p $DPLOY_PATH/logs
     rm cortex-package.zip >/dev/null 2>&1
+    rm -rf cortex-deploy-dev >/dev/null 2>&1
     rm cortex-stable.zip  >/dev/null 2>&1
+    rm -rf cortex >/dev/null 2>&1
     wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/dev -O cortex-package.zip
     local DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
-    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0-stable.zip -O cortex-stable.zip
+    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0_f6a6185f-stable.zip -O cortex-stable.zip
     local DOWNLOAD_STATUS=$(ls | grep cortex-stable.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
 
-    unzip cortex_v1.0.0-stable.zip -d cortex-bin-tmp
-    unzip cortex-package.zip -d cortex-deploy-tmp
-    chmod +x ./cortex-package-tmp/cortex-monitor.sh
-    mv ./cortex-package-tmp/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
-    mv ./cortex-package-tmp/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
+    unzip cortex-stable.zip
+    unzip cortex-package.zip
+    chmod +x ./cortex-deploy-dev/cortex-monitor.sh
+    mv ./cortex-deploy-dev/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
+    mv ./cortex-deploy-dev/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
     echo $(uuidgen) > /opt/cortex/uuid
 
-    mv ./cortex-package-tmp/cortex-monitor.py $DPLOY_PATH/
-    mv ./cortex-package-tmp/cortex.sh $DPLOY_PATH/
-    mv ./cortex-bin-tmp/* $DPLOY_PATH/
+    mv ./cortex-deploy-dev/cortex-monitor.py $DPLOY_PATH/
+    mv ./cortex-deploy-dev/cortex.sh $DPLOY_PATH/
+    mv ./cortex/* $DPLOY_PATH/
     chmod +x $DPLOY_PATH/cortex
     chmod +x $DPLOY_PATH/cortex.sh
 
@@ -87,8 +89,8 @@ deploy() {
     service cortex-monitor.sh start
 
     rm cortex-package.zip
-    rm -r ./cortex-package-tmp
-    rm -r ./cortex-bin-tmp
+    rm -r ./cortex-deploy-dev
+    rm -r ./cortex
 
     echo deploy finish
 }
