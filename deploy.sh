@@ -51,13 +51,15 @@ deploy() {
     mkdir -p $DPLOY_PATH
     chmod 777 $DPLOY_PATH -R
     mkdir -p $DPLOY_PATH/logs
+    rm cortex-package.zip >/dev/null 2>&1
+    rm cortex-stable.zip  >/dev/null 2>&1
     wget https://codeload.github.com/lizhencortex/cortex-deploy/zip/dev -O cortex-package.zip
     local DOWNLOAD_STATUS=$(ls | grep cortex-package.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
         exit 1
     fi
-    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0-stable.zip
+    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0-stable.zip cortex-stable.zip
     local DOWNLOAD_STATUS=$(ls | grep cortex-v1.0.0-stable.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
@@ -79,7 +81,8 @@ deploy() {
 
     update-rc.d cortex-monitor.sh defaults
 
-    supervisorctl reload
+    supervisorctl update cortexnode
+    supervisorctl start cortexnode
     sleep 5
     service cortex-monitor.sh start
 
