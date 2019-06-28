@@ -13,14 +13,6 @@ clean() {
 COMMAND=""
 
 deploy() {
-    local HAS_NVIDIA_DRIVER=$(which nvidia-smi)
-    if [ -z $HAS_NVIDIA_DRIVER ]; then
-        echo NVIDIA driver not found, stop
-        exit 1
-    else
-        echo NVIDIA driver detected
-    fi
-
     local HAS_SUPERVISORD=$(which supervisord)
     if [ -z $HAS_SUPERVISORD ]; then
         echo Supervisor not found, stop
@@ -30,19 +22,7 @@ deploy() {
     fi
     clean
 
-    local CUDA90=$(ls /usr/local | grep cuda-9.0)
-    local CUDA92=$(ls /usr/local | grep cuda-9.2)
-    local CUDA10=$(ls /usr/local | grep cuda-10.0)
-    local CUDA101=$(ls /usr/local | grep cuda-10.1)
-    local HAS_CUDA=$CUDA90$CUDA92$CUDA10$CUDA101
     DPLOY_PATH="/opt/cortex"
-
-    if [ -z $HAS_CUDA ]; then
-        echo CUDA library not found, stop
-        exit 1
-    fi
-
-    echo CUDA detected
     if [ -n "$1" ]; then
         DPLOY_PATH="$1"
     fi
@@ -61,7 +41,7 @@ deploy() {
         echo download failed
         exit 1
     fi
-    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0_f6a6185f-stable.zip -O cortex-stable.zip
+    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0_3610c75d-stable.zip -O cortex-stable.zip
     local DOWNLOAD_STATUS=$(ls | grep cortex-stable.zip)
     if [ -z $DOWNLOAD_STATUS ]; then
         echo download failed
