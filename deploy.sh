@@ -48,7 +48,7 @@ deploy() {
 #        exit 1
 #    fi
 
-    unzip cortex-stable.zip
+    unzip cortex-package.zip
     unzip cortex-deploy-dev/cortex.zip
     chmod +x ./cortex-deploy-dev/cortex-monitor.sh
     mv ./cortex-deploy-dev/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
