@@ -3,9 +3,9 @@
 clean() {
     DPLOY_PATH="/opt/cortex"
     echo 'Try to stop existing cortexnode'
-    supervisorctl stop cortexnode
+    supervisorctl stop cortexnode >/dev/null 2>&1
     echo 'Try to stop existing monitor service'
-    service cortex-monitor.sh stop
+    service cortex-monitor.sh stop >/dev/null 2>&1
     echo 'Try to remove existing deployment directory'
     rm -rf $DPLOY_PATH
 }
