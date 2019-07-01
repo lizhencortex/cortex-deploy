@@ -41,15 +41,15 @@ deploy() {
         echo download failed
         exit 1
     fi
-    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0_3610c75d-stable.zip -O cortex-stable.zip
-    local DOWNLOAD_STATUS=$(ls | grep cortex-stable.zip)
-    if [ -z $DOWNLOAD_STATUS ]; then
-        echo download failed
-        exit 1
-    fi
+#    wget https://raw.githubusercontent.com/CortexFoundation/Cortex_Release/master/cortex-core/cortex_v1.0.0_3610c75d-stable.zip -O cortex-stable.zip
+#    local DOWNLOAD_STATUS=$(ls | grep cortex-stable.zip)
+#    if [ -z $DOWNLOAD_STATUS ]; then
+#        echo download failed
+#        exit 1
+#    fi
 
     unzip cortex-stable.zip
-    unzip cortex-package.zip
+    unzip cortex-deploy-dev/cortex.zip
     chmod +x ./cortex-deploy-dev/cortex-monitor.sh
     mv ./cortex-deploy-dev/cortex-monitor.sh /etc/init.d/cortex-monitor.sh
     mv ./cortex-deploy-dev/cortexnode.conf /etc/supervisor/conf.d/cortexnode.conf
